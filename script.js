@@ -31,6 +31,7 @@ function render() {
 
     for (let j = 0; j < 3; j++) {
       const cell = document.createElement("td");
+
       const index = i * 3 + j;
 
       cell.onclick = function () {
@@ -67,23 +68,45 @@ function isWinningCombo(indices) {
 
 function endOfGame() {
   const winningCombo = winningCombos.find(isWinningCombo);
+  const allFieldsOccupied = fields.every((field) => field !== null);
+
   if (winningCombo) {
     drawWinningLine(winningCombo);
     return true;
+  } else if (allFieldsOccupied) {
+    gameOverRemi();
   }
   return false;
+}
+
+function gameOverRemi(cell) {
+  console.log("Spiel beendet. Unentschieden!");
+  removeOnclick(cell);
 }
 
 function setXO(cell, index) {
   if (fields[index] === null) {
     fields[index] = currentPlayer;
-
+    if (fields[index] !== null) {
+      cell.onclick = null;
+    }
     if (endOfGame()) {
       console.log("Spiel beendet. Gewinner: " + currentPlayer);
+      removeOnclick(cell);
     } else {
       currentPlayer = currentPlayer === "circle" ? "cross" : "circle";
     }
   }
+}
+
+function removeOnclick(cell) {
+  const allCells = document.querySelectorAll("td");
+  allCells.forEach(function (cell) {
+    cell.onclick = null;
+    cell.style.cursor = "auto";
+    cell.classList.remove("hover");
+  });
+  document.getElementById("btn-div").classList.remove("d-none");
 }
 
 function drawWinningLine(combination) {
@@ -235,4 +258,11 @@ function createAnimatedX() {
   svg.appendChild(line2);
 
   return svg;
+}
+
+function restartGame() {
+  for (let i = 0; i < fields.length; i++) {
+    fields[i] = null;
+  }
+  init();
 }
